@@ -180,8 +180,9 @@ async function load() {
     ? s.stats.top.map(t => `<tr><td>${esc(t.host)}</td><td class="num">${Number(t.count).toLocaleString('de-DE')}</td></tr>`).join('')
     : '<tr><td>Noch keine Blocks — Router-DNS prüfen</td><td class="num">–</td></tr>';
   document.getElementById('recentTbl').innerHTML = s.stats.recent.length
-    ? s.stats.recent.map(r => `<tr><td>${esc(new Date(r.t * 1000).toLocaleTimeString('de-DE'))}</td><td>${esc(r.host)}</td><td>${esc(r.client)}</td><td class="num">${r.blocked ? '<span class="badge block">blockiert</span>' : '<span class="badge allow">ok</span>'}</td></tr>`).join('')
+    ? s.stats.recent.map(r => `<tr><td>${esc(new Date(r.t * 1000).toLocaleTimeString('de-DE'))}</td><td>${esc(r.host)}</td><td>${esc(r.client)}</td><td class="num">${r.blocked ? '<span class="badge block">blockiert</span>' : `<span class="badge allow">ok</span> <button class="small blockHost" data-h="${esc(r.host)}" title="Diesen Host sperren">+</button>`}</td></tr>`).join('')
     : '<tr><td colspan="4">Noch keine Anfragen</td></tr>';
+  document.querySelectorAll('.blockHost').forEach(b => b.onclick = async () => { await api('/api/custom/add', { filter: b.dataset.h }); load(); });
 }
 async function setMod(key, on) {
   const cur = { ads: document.getElementById('modAds').checked, tracking: document.getElementById('modTracking').checked, annoyances: document.getElementById('modAnnoy').checked };
