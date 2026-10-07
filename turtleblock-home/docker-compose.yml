@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  web:
+    # Standard-Python-Image (multi-arch). Läuft als root, damit Port 53
+    # gebunden werden kann. Der Code liegt im App-Paket und wird
+    # read-only gemountet; Zustand/Config liegt in ${APP_DATA_DIR}/data.
+    # Hinweis für offiziellen Store: Image per sha256-Digest pinnen,
+    # z. B. python:3.12-slim@sha256:<multi-arch-digest>.
+    image: python:3.12-slim
+    command: ["python3", "/app/server.py"]
+    restart: on-failure
+    stop_grace_period: 30s
+    init: true
+    # Wie AdGuard Home: Host-Netzwerk, damit der Filter als echter
+    # DNS-Server auf Port 53 (UDP+TCP) erreichbar ist und das Web-UI
+    # direkt auf Port 8196. Kein app_proxy nötig.
+    network_mode: host
+    environment:
+      WEB_PORT: "8196"
+      DNS_PORT: "53"
+      DATA_DIR: /data
+      # Leerzeichengetrennt, wird der Reihe nach versucht:
+      UPSTREAMS: "1.1.1.1 8.8.8.8"
+      # Optional: Router-IP für lokale Namen (fritz.box & Co). FritzBox: 192.168.178.1
+      # Leer lassen = lokale Namen antworten sofort NXDOMAIN (mDNS greift).
+      ROUTER_IP: ""
+      # Optional: UI-Schreibschutz per Token, z. B. APP_PASSWORD: "geheim"
+      # (Umbrel stellt $APP_PASSWORD pro Installation bereit).
+      ADMIN_TOKEN: ${APP_PASSWORD:-}
+    volumes:
+      - ./app:/app:ro
+      - ${APP_DATA_DIR}/data:/data

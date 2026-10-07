@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TurtleBlock Home</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#131322;color:#e8e8ef;padding:20px;font-size:14px;max-width:860px;margin:0 auto}
+.header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #2a2a4a}
+.logo{width:44px;height:44px;border-radius:12px;background:#22c55e;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#06281a}
+.header h1{font-size:18px}
+.header small{display:block;font-size:12px;color:#8a8aa3;font-weight:400}
+.card{background:#1b1b30;border:1px solid #2a2a4a;border-radius:12px;padding:14px;margin-bottom:14px}
+.card h2{font-size:11px;text-transform:uppercase;color:#8a8aa3;margin-bottom:10px;letter-spacing:.6px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:#131322;border-radius:8px;padding:10px;text-align:center}
+.stat b{display:block;font-size:22px;color:#4ecca3;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:#8a8aa3}
+.mod-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #262640}
+.mod-row:last-child{border-bottom:none}
+.mod-info{flex:1}
+.mod-info b{display:block;font-size:14px}
+.mod-info span{font-size:12px;color:#8a8aa3}
+.switch{position:relative;width:44px;height:24px;flex-shrink:0;cursor:pointer}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#3a3a5a;border-radius:24px;transition:background .2s}
+.slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s}
+.switch input:checked + .slider{background:#22c55e}
+.switch input:checked + .slider::before{transform:translateX(20px)}
+.row{display:flex;gap:8px;margin-bottom:8px}
+input[type=text]{flex:1;padding:9px 11px;border:1px solid #2a2a4a;border-radius:8px;background:#131322;color:#e8e8ef;font-size:13px}
+input[type=text]:focus{outline:none;border-color:#22c55e}
+button{padding:9px 14px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#262640;color:#e8e8ef}
+button:hover{filter:brightness(1.12)}
+button.primary{background:#22c55e;color:#06281a}
+button.danger{background:#ef4444;color:#fff}
+button.small{padding:5px 10px;font-size:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 10px;background:#131322;border-radius:20px;margin:0 6px 6px 0}
+.pill button{background:none;border:none;color:#ef4444;cursor:pointer;font-size:15px;padding:0;line-height:1}
+table{width:100%;border-collapse:collapse;font-size:12px}
+td,th{padding:5px 4px;border-bottom:1px solid #262640;text-align:left;color:#c6c6da}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.badge.block{background:#3a1414;color:#ff8d85}
+.badge.allow{background:#0f2f1d;color:#4ecca3}
+.hint{font-size:12px;color:#8a8aa3;line-height:1.6;margin-top:8px}
+.hint code{color:#c6c6da;background:#131322;padding:1px 5px;border-radius:4px}
+.setup{background:#10233a;border:1px solid #1d4ed8;border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.6}
+.setup b{color:#93c5fd}
+#tokenRow{display:none}
+.footer{text-align:center;font-size:11px;color:#5a5a75;margin:16px 0 8px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">TB</div>
+  <h1>TurtleBlock Home<small id="verLabel">Netzwerk-Adblocker · Adblocker-Pro-DNA</small></h1>
+</div>
+
+<div class="setup" id="setupBox">
+  <b>Einrichtung (einmalig):</b> Im Router (z. B. FritzBox: Heimnetz → Netzwerk → IPv4) die
+  IP deines Umbrel als <b>DNS-Server</b> eintragen. TurtleBlock lauscht auf Port 53.
+  Danach hier testen: <code>doubleclick.net</code> ins Testfeld unten eingeben — muss als
+  <b>blockiert</b> gemeldet werden. Hinweis: Router-Seiten wie <code>fritz.box</code>
+  erreichst du weiter per IP (oder ROUTER_IP in der Compose-Datei setzen).</div>
+
+<div class="card">
+  <h2>Status</h2>
+  <div class="stat-grid">
+    <div class="stat"><b id="stQueries">0</b><span>DNS-Anfragen gesamt</span></div>
+    <div class="stat"><b id="stBlocked">0</b><span>davon blockiert</span></div>
+    <div class="stat"><b id="stRate">–</b><span>Block-Quote</span></div>
+    <div class="stat"><b id="stLists">–</b><span>Domains in Listen</span></div>
+  </div>
+  <div style="margin-top:10px"><button class="small danger" id="resetBtn">Zähler zurücksetzen</button></div>
+</div>
+
+<div class="card">
+  <h2>Module (einzeln schaltbar, wie in der Extension)</h2>
+  <div class="mod-row">
+    <div class="mod-info"><b>Werbung <span id="cntAds"></span></b><span>Ad-Netzwerke, AdServer, Miner, Video-Ads (TurtleCute + Superlist + EasyList)</span></div>
+    <label class="switch"><input type="checkbox" id="modAds"><span class="slider"></span></label>
+  </div>
+  <div class="mod-row">
+    <div class="mod-info"><b>Tracking &amp; Analytics <span id="cntTracking"></span></b><span>Google Analytics, Hotjar, MouseFlow, Mixpanel, Sentry &amp; Co (EasyPrivacy)</span></div>
+    <label class="switch"><input type="checkbox" id="modTracking"><span class="slider"></span></label>
+  </div>
+  <div class="mod-row">
+    <div class="mod-info"><b>Social, Consent &amp; Hersteller <span id="cntAnnoy"></span></b><span>Social-Widgets, Cookie-Banner-Backends, Affiliate, Xiaomi/Huawei/Samsung/Apple-Telemetrie, Smart-TV</span></div>
+    <label class="switch"><input type="checkbox" id="modAnnoy"><span class="slider"></span></label>
+  </div>
+  <p class="hint">Hinweis: Social-/Hersteller-Blocking kann Apps einschränken (z. B. Instagram-App, TV-Extras). Bei Problemen Modul gezielt abschalten oder Domain unten freigeben.</p>
+</div>
+
+<div class="card">
+  <h2>Domain-Test (wie „Eigener Filter" im Popup)</h2>
+  <div class="row">
+    <input type="text" id="testInput" placeholder="z. B. doubleclick.net oder google-analytics.com">
+    <button class="primary" id="testBtn">Prüfen</button>
+  </div>
+  <div id="testResult" class="hint"></div>
+</div>
+
+<div class="card">
+  <h2>Eigene Filter (Domain oder URL-Teil, immer aktiv)</h2>
+  <div class="row">
+    <input type="text" id="filterInput" placeholder="z. B. werbung.example oder /ads/">
+    <button class="primary" id="addFilterBtn">+</button>
+  </div>
+  <div id="filterList"></div>
+</div>
+
+<div class="card">
+  <h2>Ausnahmen — werden nie blockiert (wie Seiten-Ausnahmen)</h2>
+  <div class="row">
+    <input type="text" id="allowInput" placeholder="z. B. facebook.com (gilt inkl. Subdomains)">
+    <button id="addAllowBtn">Freigeben</button>
+  </div>
+  <div id="allowList"></div>
+  <p class="hint">Lokales (.local, .lan, umbrel, fritz.box, NAS …) ist automatisch immer ausgenommen.</p>
+</div>
+
+<div class="card">
+  <h2>Top blockierte Hosts</h2>
+  <table><thead><tr><th>Host</th><th class="num">Blocks</th></tr></thead><tbody id="topHosts"></tbody></table>
+</div>
+
+<div class="card">
+  <h2>Letzte Anfragen</h2>
+  <table><thead><tr><th>Zeit</th><th>Host</th><th>Client</th><th class="num">Status</th></tr></thead><tbody id="recentTbl"></tbody></table>
+</div>
+
+<div class="card" id="tokenRow">
+  <h2>Admin-Token</h2>
+  <div class="row">
+    <input type="text" id="tokenInput" placeholder="ADMIN_TOKEN eingeben">
+    <button id="tokenBtn">Speichern</button>
+  </div>
+</div>
+
+<div class="footer">TurtleBlock Home · DNS-Filter mit Adblocker-Pro-DNA<br>
+DNS sieht nur Domains — Cosmetic-Filter, Scriptlets und Tracking-Parameter (utm_, gclid, fbclid …) bleiben Aufgabe der Browser-Extension. Beide ergänzen sich.</div>
+
+<script>
+let token = localStorage.getItem('tb_token') || '';
+async function api(path, data) {
+  const opts = { headers: { 'Content-Type': 'application/json' } };
+  if (data !== undefined) { opts.method = 'POST'; opts.body = JSON.stringify(data); }
+  if (token) opts.headers['X-Auth-Token'] = token;
+  const res = await fetch(path, opts);
+  if (res.status === 403) { document.getElementById('tokenRow').style.display = 'block'; throw new Error('Token nötig'); }
+  return res.json();
+}
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+async function load() {
+  let s;
+  try { s = await api('/api/state'); }
+  catch (e) { document.getElementById('verLabel').textContent = 'Server nicht erreichbar'; return; }
+  document.getElementById('stQueries').textContent = Number(s.stats.queries).toLocaleString('de-DE');
+  document.getElementById('stBlocked').textContent = Number(s.stats.blocked).toLocaleString('de-DE');
+  document.getElementById('stRate').textContent = s.stats.queries ? Math.round(100 * s.stats.blocked / s.stats.queries) + ' %' : '–';
+  document.getElementById('stLists').textContent = Number(s.listSizes.ads + s.listSizes.tracking + s.listSizes.annoyances).toLocaleString('de-DE');
+  document.getElementById('cntAds').textContent = '· ' + s.listSizes.ads;
+  document.getElementById('cntTracking').textContent = '· ' + s.listSizes.tracking;
+  document.getElementById('cntAnnoy').textContent = '· ' + s.listSizes.annoyances;
+  document.getElementById('modAds').checked = !!s.modules.ads;
+  document.getElementById('modTracking').checked = !!s.modules.tracking;
+  document.getElementById('modAnnoy').checked = !!s.modules.annoyances;
+  if (s.authRequired) document.getElementById('tokenRow').style.display = 'block';
+  document.getElementById('filterList').innerHTML = s.custom.length
+    ? s.custom.map(f => `<span class="pill"><span>${esc(f)}</span><button data-f="${esc(f)}" class="rmF">&times;</button></span>`).join('')
+    : '<p class="hint">Keine eigenen Filter.</p>';
+  document.getElementById('allowList').innerHTML = s.allow.length
+    ? s.allow.map(f => `<span class="pill"><span>${esc(f)}</span><button data-f="${esc(f)}" class="rmA">&times;</button></span>`).join('')
+    : '<p class="hint">Keine Ausnahmen.</p>';
+  document.querySelectorAll('.rmF').forEach(b => b.onclick = async () => { await api('/api/custom/remove', { filter: b.dataset.f }); load(); });
+  document.querySelectorAll('.rmA').forEach(b => b.onclick = async () => { await api('/api/allow/remove', { domain: b.dataset.f }); load(); });
+  document.getElementById('topHosts').innerHTML = s.stats.top.length
+    ? s.stats.top.map(t => `<tr><td>${esc(t.host)}</td><td class="num">${Number(t.count).toLocaleString('de-DE')}</td></tr>`).join('')
+    : '<tr><td>Noch keine Blocks — Router-DNS prüfen</td><td class="num">–</td></tr>';
+  document.getElementById('recentTbl').innerHTML = s.stats.recent.length
+    ? s.stats.recent.map(r => `<tr><td>${esc(new Date(r.t * 1000).toLocaleTimeString('de-DE'))}</td><td>${esc(r.host)}</td><td>${esc(r.client)}</td><td class="num">${r.blocked ? '<span class="badge block">blockiert</span>' : '<span class="badge allow">ok</span>'}</td></tr>`).join('')
+    : '<tr><td colspan="4">Noch keine Anfragen</td></tr>';
+}
+async function setMod(key, on) {
+  const cur = { ads: document.getElementById('modAds').checked, tracking: document.getElementById('modTracking').checked, annoyances: document.getElementById('modAnnoy').checked };
+  cur[key] = on;
+  await api('/api/modules', { modules: cur });
+  load();
+}
+document.getElementById('modAds').onchange = e => setMod('ads', e.target.checked);
+document.getElementById('modTracking').onchange = e => setMod('tracking', e.target.checked);
+document.getElementById('modAnnoy').onchange = e => setMod('annoyances', e.target.checked);
+document.getElementById('testBtn').onclick = async () => {
+  const h = document.getElementById('testInput').value.trim();
+  if (!h) return;
+  const r = await api('/api/test?host=' + encodeURIComponent(h));
+  const names = { ads: 'Werbung', tracking: 'Tracking', annoyances: 'Social/Consent/Hersteller', custom: 'eigener Filter', allow: 'Ausnahmeliste', lan: 'LAN-Schutz', off: 'alle Module aus', ok: 'nicht gelistet', invalid: 'ungültig' };
+  document.getElementById('testResult').innerHTML = r.blocked
+    ? `<span class="badge block">blockiert</span> Grund: ${esc(names[r.reason] || r.reason)}`
+    : `<span class="badge allow">erlaubt</span> Grund: ${esc(names[r.reason] || r.reason)}`;
+};
+document.getElementById('addFilterBtn').onclick = async () => {
+  const v = document.getElementById('filterInput').value.trim();
+  if (!v) return;
+  await api('/api/custom/add', { filter: v });
+  document.getElementById('filterInput').value = '';
+  load();
+};
+document.getElementById('addAllowBtn').onclick = async () => {
+  const v = document.getElementById('allowInput').value.trim();
+  if (!v) return;
+  await api('/api/allow/add', { domain: v });
+  document.getElementById('allowInput').value = '';
+  load();
+};
+document.getElementById('resetBtn').onclick = async () => { await api('/api/reset', {}); load(); };
+document.getElementById('tokenBtn').onclick = () => { token = document.getElementById('tokenInput').value.trim(); localStorage.setItem('tb_token', token); load(); };
+load();
+setInterval(load, 10000);
+</script>
+</body>
+</html>

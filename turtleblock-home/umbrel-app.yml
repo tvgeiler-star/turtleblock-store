@@ -1,0 +1,41 @@
+manifestVersion: 1
+id: turtleblock-home
+name: TurtleBlock Home
+tagline: Netzwerkweiter Ad- & Tracker-Blocker mit Adblocker-Pro-DNA
+category: networking
+version: "1.0.0"
+port: 8196
+description: >-
+  TurtleBlock Home bringt die Filter-Logik der Adblocker-Pro-Browser-Extension
+  (DNR-Netzwerkfilter, EasyPrivacy-, EasyList-, TurtleCute- und Superlist-Hosts)
+  als DNS-Filter auf dein gesamtes Heimnetz — wie AdGuard Home, aber mit deinen
+  Listen.
+
+
+  Nach der Installation trägst du im Router (z. B. FritzBox) die IP deines
+  Umbrel als DNS-Server ein. Ab dann werden Werbung, Tracker, Analytics,
+  Social-Widgets, Cookie-/Consent-Skripte und Hersteller-Telemetrie (Xiaomi,
+  Huawei, Samsung, Apple, Realme, Oppo, OnePlus) netzwerkweit auf 0.0.0.0
+  umgeleitet — für Handy, TV, Konsole und IoT, ganz ohne Browser-Extension.
+
+
+  Die Web-Oberfläche (3 einzeln schaltbare Module, eigene Filter, Ausnahmeliste,
+  Live-Statistiken, Top-Hosts, Domain-Test) erreichst du per Klick auf das
+  App-Icon. Lokale Namen (.local, .lan, umbrel.local, FritzBox, NAS) werden
+  grundsätzlich nie blockiert.
+
+
+  Wichtig: DNS sieht nur Domains, keine URLs. Cosmetic-Filter, Scriptlets und
+  das Strippen von Tracking-Parametern (utm_, gclid, fbclid …) bleiben daher
+  Aufgabe der Browser-Extension — beide ergänzen sich (DNS allein: ca. 40–60 %).
+  Nur ein DNS-Filter pro Umbrel (entweder TurtleBlock oder AdGuard/Pi-hole).
+# repo: https://github.com/<dein-user>/turtleblock-store
+# support: https://github.com/<dein-user>/turtleblock-store/issues
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+releaseNotes: >-
+  1.0.0: Erste Version — DNS-Filter mit über 550 kuratierten Domains aus der
+  Adblocker-Pro-Extension (Ads, Tracking, Social/Consent/OEM), LAN-Schutz,
+  3 Module, eigene Filter, Statistiken.

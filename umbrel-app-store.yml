@@ -1,0 +1,2 @@
+id: "turtleblock" # Store-ID: Muss Prefix aller App-IDs in diesem Store sein (z. B. turtleblock-home)
+name: "TurtleBlock" # Wird in umbrelOS als "TurtleBlock App Store" angezeigt
