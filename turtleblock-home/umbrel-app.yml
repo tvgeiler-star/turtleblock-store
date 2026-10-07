@@ -2,7 +2,7 @@ manifestVersion: 1
 id: turtleblock-home
 name: TurtleBlock Home
 tagline: Netzwerkweiter Ad- & Tracker-Blocker mit Adblocker-Pro-DNA
-icon: https://raw.githubusercontent.com/tvgeiler-star/geiler-store/main/turtleblock-home/icon.svg
+icon: https://cdn.jsdelivr.net/gh/tvgeiler-star/geiler-store@main/turtleblock-home/icon.svg
 category: networking
 version: "1.0.0"
 port: 8196
