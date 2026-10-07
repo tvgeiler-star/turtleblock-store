@@ -26,6 +26,6 @@ services:
       ROUTER_IP: ""
       # Optional: UI-Schreibschutz per Token, z. B. APP_PASSWORD: "geheim"
       # (Umbrel stellt $APP_PASSWORD pro Installation bereit).
-      ADMIN_TOKEN: ${APP_PASSWORD:-}
+      ADMIN_TOKEN: ""
     volumes:
       - ${APP_DATA_DIR}/data:/data
